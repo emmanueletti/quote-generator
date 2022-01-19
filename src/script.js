@@ -10,65 +10,68 @@ const twitterBtn = document.querySelector('#twitter');
 const newQuoteBtn = document.querySelector('#new-quote');
 const loader = document.querySelector('#loader');
 
-// Get random int
 function getRandomInt(max) {
   return Math.floor(Math.random() * Math.floor(max));
 }
 
-// Show loading
-function showLoading() {
+function showLoadingSpinner() {
   // Hidden property is present on any HTML DOM element!!!
   loader.hidden = false;
   quoteContainer.hidden = true;
 }
 
-function hideLoading() {
+function hideLoadingSpinner() {
   loader.hidden = true;
   quoteContainer.hidden = false;
 }
 
-// Generate new quote
-function newQuote() {
-  showLoading();
-  // Pick random quote from api quotes array
-  const quote = apiQuotes[getRandomInt(apiQuotes.length)];
+function openURLInNewTab(URL) {
+  window.open(URL, '_blank');
+}
+
+function pickRandomQuote() {
+  return apiQuotes[getRandomInt(apiQuotes.length)];
+}
+
+function generateNewQuote() {
+  showLoadingSpinner();
+  const quote = pickRandomQuote();
   authorText.textContent = quote.author ?? 'Unknown';
   quoteText.textContent = quote.text;
 
-  // Check quote length to determing styline
   quote.text.length > 120
     ? quoteText.classList.add('long-quote')
     : quoteText.classList.remove('long-quote');
 
-  hideLoading();
+  hideLoadingSpinner();
 }
 
-// Fetch quotes from API
-async function getQuotes() {
-  showLoading();
+async function fetchQuotesFromAPI() {
+  showLoadingSpinner();
   const API_URL = 'https://type.fit/api/quotes';
+
   try {
     const response = await fetch(API_URL);
     apiQuotes = await response.json();
-    newQuote();
+    generateNewQuote();
   } catch (error) {
     console.log(error);
   }
 }
 
-// Tweet a quote
 function tweetQuote() {
   const quote = quoteText.textContent;
   const author = authorText.textContent;
   const twitterURL = `https://twitter.com/intent/tweet?text=${quote} - ${author}`;
 
-  // Open twitter page in a new tab
-  window.open(twitterURL, '_blank');
+  openURLInNewTab(twitterURL);
 }
 
-// On Load
-getQuotes();
-// showLoading();
 // Event listeners
+window.addEventListener('load', fetchQuotesFromAPI);
 twitterBtn.addEventListener('click', tweetQuote);
-newQuoteBtn.addEventListener('click', getQuotes);
+newQuoteBtn.addEventListener('click', fetchQuotesFromAPI);
+
+// Naming Pro-Tip: can functions be named in a way that incorperates the comment?
+// can they be named in a way that removes the need for comments?
+// Can code blocks be wrapped in semantically clear and reuseable functions?
